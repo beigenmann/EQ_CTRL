@@ -83,8 +83,8 @@ while True:
 
                 latitude_rad = latitude * pi / 180
                 height = 400
-                gmst = am.SiderialTime(year, month, day, utc)
-                lmst = am.SiderialTime(year, month, day, utc)
+                gmst = am.SiderialTime(year, month, day, utc, 0)
+                lmst = am.SiderialTime(year, month, day, utc, am.longitude)
                 gmst_s = gmst * 60 * 60
                 lmst_s = lmst * 60 * 60
                 # print("Greenwich Mean Siderial Time (GMST): ", gmst)

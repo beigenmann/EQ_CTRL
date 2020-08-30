@@ -19,6 +19,7 @@ class AstroMath:
 
     def __init__(self, longitude, latitude):
         self.SiteLongitude_h = longitude * 24 / 360
+        self.longitude = longitude
         self.longitude_rad = longitude * pi / 180
         self.latitude_rad = latitude * pi / 180
 
@@ -50,7 +51,7 @@ class AstroMath:
         jd = int(365.25 * (y + 4716)) + int(30.6001 * (m + 1)) + d + h + b - 1524.5
         return jd
 
-    def SiderialTime(self, year, month, day, utc=0):
+    def SiderialTime(self, year, month, day, utc=0, longitude=0):
         # Returns the siderial time in decimal hours. Longitude (long) is in decimal degrees.
         # If long=0, return value is Greenwich Mean Siderial Time (GMST).
 
@@ -63,7 +64,7 @@ class AstroMath:
         # Greenwich siderial time at given UTC
         st = st + 1.00273790935 * utc
         # Local siderial time at given UTC (longitude in degrees)
-        st = st + self.longitude_rad / 15
+        st = st + longitude / 15
         st = st % 24
         return st
 

@@ -4,7 +4,7 @@ import numpy as np
 import time
 from datetime import datetime, date, tzinfo
 import math
-from math import pi, sin, asin, cos, sqrt, atan2
+from math import pi, sin, asin, cos, acos, sqrt, atan2
 
 from math import floor
 

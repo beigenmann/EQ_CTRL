@@ -4,14 +4,8 @@ import datetime
 import pytz
 import numpy as np
 import time
-from astromath import (
-    Supplement,
-    Transform,
-    SiderialTime,
-    PrecessToEOD,
-    HA_DEC_to_AZ_ALT,
-    gms,
-)
+from astromath import AstroMath
+
 from datetime import datetime, date, tzinfo
 from math import pi
 
@@ -30,7 +24,7 @@ def sendPosition(ra_int, dec_int, status):
     return bytes(buffer)
 
 
-addr = socket.getaddrinfo("0.0.0.0", 10005)[0][-1]
+addr = socket.getaddrinfo("0.0.0.0", 10007)[0][-1]
 # try:
 #     rtc = RTC()
 #     ntptime.settime()
@@ -73,23 +67,24 @@ while True:
                 # x = print_ra + timedelta(seconds=3)
                 # GAST0 = print_ra +EE
                 # alpha = ra_int * (180 / 2147483648)
-
+                longitude = 9.4542218
+                latitude = 47.4926525
+                am = AstroMath(longitude, latitude)
                 now = datetime.utcnow()
                 year = now.year
                 month = now.month
                 day = now.day
                 utc = now.hour + now.minute / 60 + now.second / 3600
                 year_dec = year + month / 12 + day / 365
-                trans = Supplement(year_dec, 2000.0)
-                ra_rad_trans, dec_rad_trans = Transform(ra_rad, dec_rad, trans)
+                trans = am.Supplement(year_dec, 2000.0)
+                ra_rad_trans, dec_rad_trans = am.Transform(ra_rad, dec_rad, trans)
                 ra_s_trans = ra_rad_trans * 12 * 60 * 60 / pi
                 dec_deg_trans = dec_rad_trans * 180 / pi
-                longitude = 9.4542218
-                latitude = 47.4926525
+
                 latitude_rad = latitude * pi / 180
                 height = 400
-                gmst = SiderialTime(year, month, day, utc, 0)
-                lmst = SiderialTime(year, month, day, utc, longitude)
+                gmst = am.SiderialTime(year, month, day, utc)
+                lmst = am.SiderialTime(year, month, day, utc)
                 gmst_s = gmst * 60 * 60
                 lmst_s = lmst * 60 * 60
                 # print("Greenwich Mean Siderial Time (GMST): ", gmst)
@@ -114,7 +109,7 @@ while True:
                 alpha = lmst_s - ra_s
                 alpha_trans = lmst_s - ra_s_trans
                 alpha_trans_rad = (alpha_trans * pi) / (12 * 60 * 60)
-                PrecessToEOD(2000, ra_rad, dec_rad)
+                am.PrecessToEOD(2000, ra_rad, dec_rad)
                 print(
                     "RA",
                     datetime.fromtimestamp(ra_s, tz=pytz.utc).strftime("%H:%M:%S.%f"),
@@ -131,15 +126,15 @@ while True:
                         "%H:%M:%S.%f"
                     ),
                 )
-                print("Declination ", gms(dec_deg))
-                print("Declination Date", gms(dec_deg_trans))
-                az_rad, alt_rad = HA_DEC_to_AZ_ALT(
+                print("Declination ", am.gms(dec_deg))
+                print("Declination Date", am.gms(dec_deg_trans))
+                az_rad, alt_rad = am.HA_DEC_to_AZ_ALT(
                     alpha_trans_rad, dec_rad_trans, latitude_rad
                 )
                 az = az_rad * 180 / pi
                 alt = alt_rad * 180 / pi
-                print("Azimut ", gms(az))
-                print("Altitude", gms(alt))
+                print("Azimut ", am.gms(az))
+                print("Altitude", am.gms(alt))
                 status = 0
                 buff = sendPosition(ra_int, dec_int, status)
                 # print("Buffer", buff)
